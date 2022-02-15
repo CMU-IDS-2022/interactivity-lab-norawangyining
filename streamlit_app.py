@@ -1,7 +1,10 @@
+from enum import unique
 from re import U
+
 import streamlit as st
 import pandas as pd
 import altair as alt
+import numpy as np
 
 @st.cache
 def load_data():
@@ -9,7 +12,9 @@ def load_data():
     Write 1-2 lines of code here to load the data from CSV to a pandas dataframe
     and return it.
     """
-    pass
+    df = pd.read_csv("/Users/xmnora/Desktop/interactivity-lab-norawangyining/pulse39.csv")
+    return df
+   # pass
 
 @st.cache
 def get_slice_membership(df, genders, races, educations, age_range):
@@ -70,9 +75,34 @@ st.title("Household Pulse Explorable")
 with st.spinner(text="Loading data..."):
     df = load_data()
 st.text("Visualize the overall dataset and some distributions here...")
+st.write(df[:10])
+
+#visualize the distributions of race and education levels in the data.
+chart = alt.Chart(df).mark_bar().encode(
+    alt.Y("race"),
+    alt.X("count()"),
+    alt.Color("education"),
+    tooltip = ['count()']
+).interactive()
+
+st.altair_chart(chart, use_container_width=True)
+#st.write(chart)
 
 st.header("Custom slicing")
 st.text("Implement your interactive slicing tool here...")
+genders = st.multiselect("Choose the gender you are intrested in: ", df['gender'].unique())
+races = st.multiselect("Races: ", df['race'].unique())
+educations = st.multiselect("Educations: ", df['education'].unique())
+print(df['age'].unique())
+age_range = st.slider(
+    'select age range:',
+    int(np.amin(df['age'].unique())), int(np.amax(df['age'].unique())),
+    (int(np.amin(df['age'].unique())), int(np.amax(df['age'].unique())))
+)
+
+get_slice_membership(df, genders, races, educations, age_range)
+
+
 
 st.header("Person sampling")
 st.text("Implement a button to sample and describe a random person here...")
